@@ -593,7 +593,57 @@ body {
   background: #374151;
 }
 
-/* Responsive */
+/* ── Burger Button ─────────────────────────────────────────────── */
+.burger-btn {
+  display: none; /* скрыт на десктопе */
+  flex-direction: column;
+  justify-content: center;
+  gap: 5px;
+  width: 36px;
+  height: 36px;
+  background: none;
+  border: none;
+  cursor: pointer;
+  padding: 4px;
+  border-radius: 6px;
+  margin-right: 12px;
+  flex-shrink: 0;
+}
+
+.burger-btn span {
+  display: block;
+  width: 22px;
+  height: 2px;
+  background: #e2e8f0;
+  border-radius: 2px;
+  transition: transform 0.28s ease, opacity 0.28s ease;
+  transform-origin: center;
+}
+
+/* Анимация в ✕ при открытом меню */
+.burger-btn.open span:nth-child(1) { transform: translateY(7px) rotate(45deg); }
+.burger-btn.open span:nth-child(2) { opacity: 0; transform: scaleX(0); }
+.burger-btn.open span:nth-child(3) { transform: translateY(-7px) rotate(-45deg); }
+
+/* ── Overlay ───────────────────────────────────────────────────── */
+.overlay {
+  display: none;
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.55);
+  z-index: 199;
+}
+
+.overlay.active {
+  display: block;
+}
+
+/* Блокируем скролл страницы пока сайдбар открыт */
+body.no-scroll {
+  overflow: hidden;
+}
+
+/* ── Responsive ────────────────────────────────────────────────── */
 @media (max-width: 1200px) {
   .stats-grid {
     grid-template-columns: repeat(2, 1fr);
@@ -601,8 +651,26 @@ body {
 }
 
 @media (max-width: 768px) {
+  .burger-btn {
+    display: flex;
+  }
+
+  /* Slide-in вместо display:none */
   .sidebar {
-    display: none;
+    position: fixed;
+    top: 0;
+    left: 0;
+    height: 100vh;
+    z-index: 200;
+    transform: translateX(-100%);
+    transition: transform 0.28s ease;
+    box-shadow: none;
+    /* display:flex уже задан в базовых стилях */
+  }
+
+  .sidebar.open {
+    transform: translateX(0);
+    box-shadow: 4px 0 32px rgba(0, 0, 0, 0.5);
   }
 
   .content {

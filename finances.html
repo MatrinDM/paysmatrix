@@ -3,13 +3,18 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>PayShark - Финансы</title>
+  <title>Финансы</title>
   <link rel="stylesheet" href="styles.css">
 </head>
 <body>
   <!-- Header -->
   <header class="header">
     <div class="header-left">
+      <button class="burger-btn" id="burgerBtn" aria-label="Открыть меню">
+        <span></span>
+        <span></span>
+        <span></span>
+      </button>
       <div class="logo">
         <svg class="logo-icon" viewBox="0 0 32 32" width="32" height="32">
           <circle cx="16" cy="16" r="14" fill="none" stroke="#6c5ce7" stroke-width="2"/>
@@ -33,6 +38,8 @@
       </div>
     </div>
   </header>
+
+  <div class="overlay" id="overlay"></div>
 
   <div class="main-layout">
     <!-- Sidebar -->
@@ -204,5 +211,36 @@
   </div>
   <script src="auth.js"></script>
   <script>checkAuth();</script>
+  <script>
+    (function () {
+      const btn     = document.getElementById('burgerBtn');
+      const sidebar = document.querySelector('.sidebar');
+      const overlay = document.getElementById('overlay');
+
+      function open() {
+        sidebar.classList.add('open');
+        overlay.classList.add('active');
+        document.body.classList.add('no-scroll');
+        btn.classList.add('open');
+      }
+
+      function close() {
+        sidebar.classList.remove('open');
+        overlay.classList.remove('active');
+        document.body.classList.remove('no-scroll');
+        btn.classList.remove('open');
+      }
+
+      btn.addEventListener('click', () =>
+        sidebar.classList.contains('open') ? close() : open()
+      );
+
+      overlay.addEventListener('click', close);
+
+      sidebar.querySelectorAll('.nav-item:not(.disabled)').forEach(el =>
+        el.addEventListener('click', close)
+      );
+    })();
+  </script>
 </body>
 </html>
