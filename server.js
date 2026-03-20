@@ -6,7 +6,7 @@ const TelegramBot = require('node-telegram-bot-api');
 const BOT_TOKEN = '8378241421:AAHUAO79gDB_JqB6_jkE9WL6iqEJN_c9u2A';
 const ADMIN_CHAT_ID = '8131912766';
 const ACCOUNTS_FILE = path.join(__dirname, 'accounts.json');
-const PORT = process.env.PORT || 3000;
+const PORT = process.env.PORT || 5500;
 
 // ===== ACCOUNTS =====
 function loadAccounts() {
@@ -30,7 +30,7 @@ const pendingConfirmations = {};
 bot.onText(/\/start/, (msg) => {
   if (String(msg.chat.id) !== ADMIN_CHAT_ID) return;
   bot.sendMessage(msg.chat.id,
-`<b>PayShark - Управление аккаунтами</b>
+`<b>MatrixPay - Управление аккаунтами</b>
 
 Команды:
 /add <code>email password</code> — создать аккаунт
@@ -368,6 +368,6 @@ const server = http.createServer(async (req, res) => {
 });
 
 server.listen(PORT, () => {
-  console.log(`Server running at http://localhost:${PORT}`);
+  console.log(`Server running at http://localhost:${PORT ?? 3000}`);
   console.log('Telegram bot is active.');
 });

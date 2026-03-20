@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Финансы</title>
+  <title> Финансы</title>
   <link rel="stylesheet" href="styles.css">
 </head>
 <body>
@@ -15,13 +15,13 @@
         <span></span>
         <span></span>
       </button>
-      <div class="logo">
-        <svg class="logo-icon" viewBox="0 0 32 32" width="32" height="32">
-          <circle cx="16" cy="16" r="14" fill="none" stroke="#6c5ce7" stroke-width="2"/>
-          <path d="M10 20 L16 10 L22 20 Z" fill="#6c5ce7"/>
-        </svg>
+<!--      <div class="logo">-->
+<!--        <svg class="logo-icon" viewBox="0 0 32 32" width="32" height="32">-->
+<!--          <circle cx="16" cy="16" r="14" fill="none" stroke="#6c5ce7" stroke-width="2"/>-->
+<!--          <path d="M10 20 L16 10 L22 20 Z" fill="#6c5ce7"/>-->
+<!--        </svg>-->
         <span class="logo-text">MatrixPay</span>
-      </div>
+<!--      </div>-->
     </div>
     <div class="header-right">
       <div class="balance-info">
@@ -32,7 +32,7 @@
         <div class="user-avatar">CS</div>
         <div class="user-info">
           <span class="user-email">landawork@tuta.io</span>
-          <span class="user-name">Matrix_supportx landawork</span>
+
         </div>
         <span class="dropdown-arrow">&#9662;</span>
       </div>
@@ -129,9 +129,9 @@
           <div class="finance-card-header">
             <h3>Траст баланс</h3>
             <div class="finance-actions">
-              <button class="btn-action btn-withdraw">
+              <a href="https://t.me/MatrixPay_Payment" target="_blank" rel="noopener noreferrer" class="btn-action btn-withdraw">
                 <span class="btn-icon">&#8593;</span> Вывести
-              </button>
+              </a>
               <a href="payment.html" class="btn-action btn-deposit">
                 <span class="btn-icon">&#128274;</span> Пополнить
               </a>
@@ -145,19 +145,16 @@
           </div>
         </div>
 
-        <div class="finance-card">
-          <h3>Эскроу-счет (проводится сделка)</h3>
-          <div class="finance-amount">0 USDT</div>
-          <div class="finance-sub">0 RUB - Выплат - 0</div>
-        </div>
+<!--        <div class="finance-card">-->
+<!--          <h3>Эскроу-счет (проводится сделка)</h3>-->
+<!--          <div class="finance-amount">0 USDT</div>-->
+<!--          <div class="finance-sub">0 RUB - Выплат - 0</div>-->
+<!--        </div>-->
 
         <div class="finance-card large" id="workBalanceCard">
           <div class="finance-card-header">
             <h3>Рабочий счёт</h3>
             <div class="finance-actions">
-              <button class="btn-action btn-withdraw">
-                <span class="btn-icon">&#8593;</span> Вывести
-              </button>
               <a href="payment.html?type=work" class="btn-action btn-deposit">
                 <span class="btn-icon">&#128274;</span> Пополнить
               </a>

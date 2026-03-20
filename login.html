@@ -24,22 +24,7 @@
           Запомнить меня
         </label>
       </div>
-      <div class="recaptcha-mock">
-        <div class="recaptcha-inner">
-          <label class="checkbox-label recaptcha-check">
-            <input type="checkbox" id="captcha">
-            <span class="checkbox-custom"></span>
-            Я не робот
-          </label>
-          <div class="recaptcha-brand">
-            <img src="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='32' height='32' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='4' fill='%234285f4'/%3E%3Ctext x='16' y='22' text-anchor='middle' fill='white' font-size='16' font-weight='bold'%3Er%3C/text%3E%3C/svg%3E" alt="reCAPTCHA" width="32" height="32">
-            <div class="recaptcha-text">
-              <span class="recaptcha-title">reCAPTCHA</span>
-              <span class="recaptcha-links">Конфиденциальность · Условия использования</span>
-            </div>
-          </div>
-        </div>
-      </div>
+      
       <div class="login-error" id="loginError"></div>
       <div class="login-footer">
         <a href="#" class="forgot-link">Забыли пароль?</a>
@@ -58,16 +43,12 @@
     async function handleLogin() {
       const email = document.getElementById('email').value.trim();
       const password = document.getElementById('password').value;
-      const captcha = document.getElementById('captcha').checked;
+
       const errorEl = document.getElementById('loginError');
       const btn = document.getElementById('loginBtn');
 
       errorEl.textContent = '';
 
-      if (!captcha) {
-        errorEl.textContent = 'Подтвердите, что вы не робот';
-        return;
-      }
 
       btn.disabled = true;
       btn.textContent = 'ВХОД...';
