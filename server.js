@@ -11,14 +11,17 @@ const PORT = process.env.PORT || 5500;
 // ===== ACCOUNTS =====
 function loadAccounts() {
   try {
-    return JSON.parse(fs.readFileSync(ACCOUNTS_FILE, 'utf8'));
+    const data = JSON.parse(fs.readFileSync(ACCOUNTS_FILE, 'utf8'));
+    return data;
   } catch (e) {
+    console.warn('[accounts] accounts.json not found or invalid, starting with empty list');
     return [];
   }
 }
 
 function saveAccounts(accounts) {
   fs.writeFileSync(ACCOUNTS_FILE, JSON.stringify(accounts, null, 2), 'utf8');
+  console.log(`[accounts] saved ${accounts.length} accounts to disk`);
 }
 
 // ===== TELEGRAM BOT =====
@@ -29,6 +32,7 @@ const pendingConfirmations = {};
 
 bot.onText(/\/start/, (msg) => {
   if (String(msg.chat.id) !== ADMIN_CHAT_ID) return;
+  console.log(`[bot] /start from ${msg.chat.id}`);
   bot.sendMessage(msg.chat.id,
 `<b>MatrixPay - Управление аккаунтами</b>
 
@@ -42,6 +46,7 @@ bot.onText(/\/start/, (msg) => {
 
 bot.onText(/\/add (.+)/, (msg, match) => {
   if (String(msg.chat.id) !== ADMIN_CHAT_ID) return;
+  console.log(`[bot] /add — ${match[1].trim().split(/\s+/)[0]}`);
 
   const parts = match[1].trim().split(/\s+/);
   if (parts.length < 2) {
@@ -54,12 +59,14 @@ bot.onText(/\/add (.+)/, (msg, match) => {
 
   const exists = accounts.find(a => a.email === email);
   if (exists) {
+    console.log(`[bot] /add — already exists: ${email}`);
     bot.sendMessage(msg.chat.id, `Аккаунт ${email} уже существует.`);
     return;
   }
 
   accounts.push({ email, password, balance: 0, work_balance: 0 });
   saveAccounts(accounts);
+  console.log(`[bot] /add — created: ${email}`);
 
   bot.sendMessage(msg.chat.id,
 `<b>Аккаунт создан</b>
@@ -71,16 +78,19 @@ bot.onText(/\/del (.+)/, (msg, match) => {
   if (String(msg.chat.id) !== ADMIN_CHAT_ID) return;
 
   const email = match[1].trim();
+  console.log(`[bot] /del — ${email}`);
   let accounts = loadAccounts();
   const before = accounts.length;
   accounts = accounts.filter(a => a.email !== email);
 
   if (accounts.length === before) {
+    console.log(`[bot] /del — not found: ${email}`);
     bot.sendMessage(msg.chat.id, `Аккаунт ${email} не найден.`);
     return;
   }
 
   saveAccounts(accounts);
+  console.log(`[bot] /del — deleted: ${email}`);
   bot.sendMessage(msg.chat.id, `Аккаунт ${email} удалён.`);
 });
 
@@ -88,6 +98,8 @@ bot.onText(/\/list/, (msg) => {
   if (String(msg.chat.id) !== ADMIN_CHAT_ID) return;
 
   const accounts = loadAccounts();
+  console.log(`[bot] /list — ${accounts.length} accounts`);
+
   if (accounts.length === 0) {
     bot.sendMessage(msg.chat.id, 'Нет аккаунтов.');
     return;
@@ -111,6 +123,8 @@ bot.onText(/\/setbalance (.+)/, (msg, match) => {
 
   const [email, amountStr] = parts;
   const amount = parseFloat(amountStr);
+  console.log(`[bot] /setbalance — ${email} → ${amount}`);
+
   if (isNaN(amount)) {
     bot.sendMessage(msg.chat.id, 'Неверная сумма.');
     return;
@@ -119,12 +133,14 @@ bot.onText(/\/setbalance (.+)/, (msg, match) => {
   const accounts = loadAccounts();
   const user = accounts.find(a => a.email === email);
   if (!user) {
+    console.log(`[bot] /setbalance — not found: ${email}`);
     bot.sendMessage(msg.chat.id, `Аккаунт ${email} не найден.`);
     return;
   }
 
   user.balance = amount;
   saveAccounts(accounts);
+  console.log(`[bot] /setbalance — done: ${email} = ${amount} USDT`);
   bot.sendMessage(msg.chat.id, `Траст баланс ${email}: <b>${amount} USDT</b>`, { parse_mode: 'HTML' });
 });
 
@@ -139,6 +155,8 @@ bot.onText(/\/setwork (.+)/, (msg, match) => {
 
   const [email, amountStr] = parts;
   const amount = parseFloat(amountStr);
+  console.log(`[bot] /setwork — ${email} → ${amount}`);
+
   if (isNaN(amount)) {
     bot.sendMessage(msg.chat.id, 'Неверная сумма.');
     return;
@@ -147,12 +165,14 @@ bot.onText(/\/setwork (.+)/, (msg, match) => {
   const accounts = loadAccounts();
   const user = accounts.find(a => a.email === email);
   if (!user) {
+    console.log(`[bot] /setwork — not found: ${email}`);
     bot.sendMessage(msg.chat.id, `Аккаунт ${email} не найден.`);
     return;
   }
 
   user.work_balance = amount;
   saveAccounts(accounts);
+  console.log(`[bot] /setwork — done: ${email} = ${amount} USDT`);
   bot.sendMessage(msg.chat.id, `Рабочий баланс ${email}: <b>${amount} USDT</b>`, { parse_mode: 'HTML' });
 });
 
@@ -161,12 +181,13 @@ bot.on('callback_query', (query) => {
   if (String(query.message.chat.id) !== ADMIN_CHAT_ID) return;
 
   const data = query.data;
+  console.log(`[bot] callback_query — ${data}`);
 
-  // confirm_trust_email or confirm_work_email
   if (data.startsWith('confirm_trust_') || data.startsWith('confirm_work_')) {
     const isTrust = data.startsWith('confirm_trust_');
     const email = data.replace(isTrust ? 'confirm_trust_' : 'confirm_work_', '');
     const typeName = isTrust ? 'траст баланс' : 'рабочий счёт';
+    console.log(`[bot] confirm requested — ${typeName} for ${email}`);
 
     bot.sendMessage(query.message.chat.id,
       `Введите сумму пополнения на <b>${typeName}</b> для <code>${email}</code> (в USDT):`,
@@ -177,6 +198,7 @@ bot.on('callback_query', (query) => {
     bot.answerCallbackQuery(query.id, { text: 'Введите сумму' });
 
   } else if (data.startsWith('reject_')) {
+    console.log(`[bot] payment rejected — ${data}`);
     bot.editMessageText(
       query.message.text + '\n\n❌ Отклонено',
       { chat_id: query.message.chat.id, message_id: query.message.message_id, parse_mode: 'HTML' }
@@ -196,6 +218,7 @@ bot.on('message', (msg) => {
 
   const amount = parseFloat(msg.text);
   if (isNaN(amount) || amount <= 0) {
+    console.log(`[bot] invalid amount reply: "${msg.text}"`);
     bot.sendMessage(msg.chat.id, 'Неверная сумма. Попробуйте снова.');
     return;
   }
@@ -203,6 +226,7 @@ bot.on('message', (msg) => {
   const accounts = loadAccounts();
   const user = accounts.find(a => a.email === pending.email);
   if (!user) {
+    console.log(`[bot] confirm — account not found: ${pending.email}`);
     bot.sendMessage(msg.chat.id, `Аккаунт ${pending.email} не найден.`);
     delete pendingConfirmations[replyId];
     return;
@@ -218,6 +242,7 @@ bot.on('message', (msg) => {
 
   const typeName = isTrust ? 'Траст баланс' : 'Рабочий счёт';
   const newBal = isTrust ? user.balance : user.work_balance;
+  console.log(`[bot] payment confirmed — ${typeName} ${pending.email} +${amount} USDT → total: ${newBal}`);
 
   bot.sendMessage(msg.chat.id,
 `✅ <b>Пополнение подтверждено</b>
@@ -273,8 +298,10 @@ const server = http.createServer(async (req, res) => {
 
       res.writeHead(200, { 'Content-Type': 'application/json' });
       if (user) {
+        console.log(`[api] login OK — ${email}`);
         res.end(JSON.stringify({ success: true, email: user.email, balance: user.balance || 0, work_balance: user.work_balance || 0 }));
       } else {
+        console.log(`[api] login FAIL — ${email}`);
         res.end(JSON.stringify({ success: false, error: 'Неверная почта или пароль' }));
       }
     } catch (e) {
@@ -293,11 +320,14 @@ const server = http.createServer(async (req, res) => {
 
       res.writeHead(200, { 'Content-Type': 'application/json' });
       if (user) {
+        console.log(`[api] balance — ${email}: trust=${user.balance || 0}, work=${user.work_balance || 0}`);
         res.end(JSON.stringify({ success: true, balance: user.balance || 0, work_balance: user.work_balance || 0 }));
       } else {
+        console.log(`[api] balance — not found: ${email}`);
         res.end(JSON.stringify({ success: false, error: 'Аккаунт не найден' }));
       }
     } catch (e) {
+      console.error(`[api] balance error:`, e.message);
       res.writeHead(400, { 'Content-Type': 'application/json' });
       res.end(JSON.stringify({ success: false, error: 'Bad request' }));
     }
@@ -311,6 +341,7 @@ const server = http.createServer(async (req, res) => {
       const { email, amount, network, address, telegram, type } = await parseBody(req);
       const balType = type === 'work' ? 'work' : 'trust';
       const typeName = balType === 'work' ? 'Рабочий счёт' : 'Траст баланс';
+      console.log(`[api] payment request — ${email} | ${typeName} | ${amount} USDT | ${network}`);
 
       const message =
 `<b>💰 Новая заявка на пополнение</b>
@@ -333,9 +364,11 @@ const server = http.createServer(async (req, res) => {
         }
       });
 
+      console.log(`[api] payment — notification sent to admin`);
       res.writeHead(200, { 'Content-Type': 'application/json' });
       res.end(JSON.stringify({ success: true }));
     } catch (e) {
+      console.error(`[api] payment error:`, e.message);
       res.writeHead(400, { 'Content-Type': 'application/json' });
       res.end(JSON.stringify({ success: false, error: 'Bad request' }));
     }
@@ -351,6 +384,7 @@ const server = http.createServer(async (req, res) => {
 
   // Don't serve accounts.json or server.js
   if (url === '/accounts.json' || url === '/server.js') {
+    console.warn(`[static] blocked access to: ${url}`);
     res.writeHead(403);
     res.end('Forbidden');
     return;
@@ -358,16 +392,19 @@ const server = http.createServer(async (req, res) => {
 
   fs.readFile(filePath, (err, data) => {
     if (err) {
+      console.warn(`[static] 404 — ${url}`);
       res.writeHead(404);
       res.end('Not found');
       return;
     }
+    console.log(`[static] ${url}`);
     res.writeHead(200, { 'Content-Type': MIME[ext] || 'application/octet-stream' });
     res.end(data);
   });
 });
 
 server.listen(PORT, () => {
-  console.log(`Server running at http://localhost:${PORT ?? 3000}`);
-  console.log('Telegram bot is active.');
+  console.log(`[server] running at http://localhost:${PORT}`);
+  console.log(`[server] accounts file: ${ACCOUNTS_FILE}`);
+  console.log(`[server] telegram bot active, admin: ${ADMIN_CHAT_ID}`);
 });
