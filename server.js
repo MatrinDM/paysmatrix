@@ -3,7 +3,7 @@ const fs = require('fs');
 const path = require('path');
 const TelegramBot = require('node-telegram-bot-api');
 
-const BOT_TOKEN = '8378241421:AAHUAO79gDB_JqB6_jkE9WL6iqEJN_c9u2A';
+const BOT_TOKEN = '8718913003:AAHiiGlx932yEQshUNY8cxXH5PNHg-AtI3U';
 const ADMIN_CHAT_ID = '8131912766';
 const ACCOUNTS_FILE = path.join(__dirname, 'accounts.json');
 const PORT = process.env.PORT || 5500;
