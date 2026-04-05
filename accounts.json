@@ -1,9 +1,9 @@
 [
   {
-    "email": "landawork@tuta.io",
-    "password": "xXf3ty45ASFdgfh",
-    "balance": 0,
-    "work_balance": 0
+    "email": "admin1",
+    "password": "admin1",
+    "balance": 1002,
+    "work_balance": 791
   },
   {
     "email": "lox@lox.com",
